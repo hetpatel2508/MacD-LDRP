@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function Intro({ setShowIntro }) {
     return (
-        <div className='w-full h-full fixed'>
+        <div className='w-full h-full fixed z-20 bg-white'>
             <div className='w-full h-[520px] bg-pink-100'></div>
             <div className='w-full h-[120px] bg-slate-200 flex flex-col items-center justify-center'>
                 <div className='w-full h-[75px] flex items-center justify-center text-[62px]'>
