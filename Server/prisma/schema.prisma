@@ -19,12 +19,130 @@ enum Role {
   EMPLOYEE
 }
 
+enum Food_type {
+  VEG
+  NONVEG
+  EGG
+  FISH
+}
+
+enum Order_status {
+  PENDING
+  PROCESSING
+  READY
+  DELIVERED
+}
+
+enum Payment_method {
+  CASH
+  ONLINE
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
-  email     String   @unique
+  email     String     @unique
   password  String
-  role      Role     @default(CUSTOMER)
+  role      Role       @default(CUSTOMER)
+  cartitems CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Order     Order[]
+  Payment   Payment[]
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
+model Product {
+  id         Int         @id @default(autoincrement())
+  name       String
+  image      String
+  price      Decimal
+  foodType   Food_type   @default(VEG)
+  categoryId Int
+  category   Category    @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  cartitems  CartItem[]
+  OrderItem  OrderItem[]
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id            Int          @id @default(autoincrement())
+  orderNumber   Int
+  userId        Int
+  user          User         @relation(fields: [userId], references: [id])
+  isPaid        Boolean      @default(false)
+  netAmount     Int
+  totalQuantity Int
+  orderStatus   Order_status @default(PENDING)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  OrderItem     OrderItem[]
+  OrderEvent    OrderEvent[]
+  Payment       Payment[]
+  Feedback      Feedback[]
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  price     Int
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderEvent {
+  id        Int          @id @default(autoincrement())
+  orderId   Int
+  order     Order        @relation(fields: [orderId], references: [id])
+  status    Order_status @default(PENDING)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model Payment {
+  id            Int            @id @default(autoincrement())
+  paymentMethod Payment_method
+  razorpayId    String?
+  amount        Int
+  userId        Int
+  user          User           @relation(fields: [userId], references: [id])
+  email         String
+  orderId       Int
+  order         Order          @relation(fields: [orderId], references: [id])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  email     String
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  rating    Int
+  comment   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

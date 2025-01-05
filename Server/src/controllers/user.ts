@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { signInSchema, signUpSchema } from '../models/user';
 import prisma from '../../DB/prisma';
 import { BadRequestException } from '../exceptions/bad-requests';
+import { resetPasswordSchema, signInSchema, signUpSchema } from '../models/user';
 
-import { ErrorCode } from '../exceptions/root';
 import { compareSync, hashSync } from 'bcrypt';
+import { ErrorCode } from '../exceptions/root';
 // import * as jwt from 'jsonwebtoken';
 import jsonwebtoken from 'jsonwebtoken';
 
@@ -69,5 +69,53 @@ export const login = async (req: Request, res: Response) => {
     token: token,
   });
 
-  //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM2MDU5NDg1fQ.TXqfx6sLTgJYsd42TuusJbj912-GJKT34TriyMoGasw
+  //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM2MDc0MDkyfQ.V5oHrUQ0DGA4fqfnMGTsWU7VleELyOUk9DeJuVBhasw
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  resetPasswordSchema.parse(req.body);
+  const { email, newPassword } = req.body;
+
+  const user = await prisma.user.findFirst({
+    where: {
+      email: email,
+    },
+  });
+
+  if (!user) {
+    throw new BadRequestException('User not found', ErrorCode.USER_NOT_FOUND);
+  }
+
+  const hashedPassword = hashSync(newPassword, 10);
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      password: hashedPassword,
+    },
+  });
+
+  res.status(200).json({
+    message: 'Password reset successfully',
+  });
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = await prisma.user.delete({
+    where: {
+      id: Number(id),
+    },
+  });
+
+  if (!user) {
+    throw new BadRequestException('User not found', ErrorCode.USER_NOT_FOUND);
+  }
+
+  res.status(200).json({
+    message: 'User deleted successfully',
+    data: user,
+  });
 };
