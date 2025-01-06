@@ -14,10 +14,11 @@ app.use(errorMiddleware);
 
 app.use(
   cors({
-    origin: 'http://localhost:5173', // Adjust as needed for your frontend domain
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
+    maxAge: 3600,
   }),
 );
 
