@@ -9,18 +9,17 @@ const app: Express = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/', rootRouter);
-app.use(errorMiddleware);
-
 app.use(
   cors({
-    origin: '*',
+    origin: 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-    maxAge: 3600,
   }),
 );
+
+app.use('/', rootRouter);
+app.use(errorMiddleware);
 
 app.listen(process.env.PORT, () => {
   console.log('Example app listening on port ' + process.env.PORT + '!');
