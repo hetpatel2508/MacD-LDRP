@@ -3,6 +3,7 @@ import 'dotenv/config';
 import rootRouter from './routes';
 import { errorMiddleware } from './middlewares/errors';
 import cors from 'cors';
+import { getOrderNumber } from './controllers/order';
 
 const app: Express = express();
 
