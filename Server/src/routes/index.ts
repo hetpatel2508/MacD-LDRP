@@ -4,6 +4,7 @@ import productRouter from './product';
 import categoryRouter from './category';
 import cartRouter from './cart';
 import razerpayRouter from './razorpay';
+import orderRouter from './order';
 
 const rootRouter: Router = Router();
 
@@ -12,6 +13,7 @@ rootRouter.use('/product', productRouter);
 rootRouter.use('/category', categoryRouter);
 rootRouter.use('/cart', cartRouter);
 rootRouter.use('/payment', razerpayRouter);
+rootRouter.use('/order', orderRouter);
 
 rootRouter.get('/', (req, res) => {
   res.send('Hello World!');
