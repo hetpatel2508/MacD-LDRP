@@ -1,0 +1,178 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.main-container {
+  display: flex;
+}
+
+.sidebar {
+  width: 250px;
+  background: #f8f9fa;
+  padding: 20px;
+  height: 100vh;
+}
+
+.logo {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+}
+
+.menu li {
+  margin: 10px 0;
+}
+
+.menu button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.menu button:hover,
+.menu .active button {
+  color: red;
+  font-weight: bold;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+}
+
+.title {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.menu-card {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #ffffff;
+}
+
+.menu-card:hover {
+  transform: scale(1.05); /* Slightly enlarge the card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow on hover */
+}
+
+.menu-image {
+  width: 150px; /* Fixed width for the image */
+  height: 150px; /* Fixed height for the image */
+  object-fit: cover; /* Ensures the image covers the container without distortion */
+  border-radius: 10px; /* Optional: Adds rounded corners */
+  margin: 10px; /* Optional: Adds margin between items */
+}
+
+.menu-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.menu-price {
+  font-size: 1rem;
+  color: green;
+}
+
+.cart {
+  width: 300px;
+  background: #f8f9fa;
+  padding: 20px;
+  border-left: 1px solid #ddd;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: sticky;
+  top: 0;
+}
+
+.cart h3 {
+  margin-top: 0;
+  text-align: center;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f1f1f1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cart-item img {
+  width: 50px;
+  height: 50px;
+  border-radius: 5px;
+}
+
+.cart-item .item-name {
+  flex: 1;
+  margin-left: 10px;
+  font-size: 1rem;
+}
+
+.cart-item .item-price {
+  color: green;
+}
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: red;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+.remove-btn:hover {
+  color: darkred;
+}
+
+.cart-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-price {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: green;
+}
+
+.checkout-btn {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.checkout-btn:hover {
+  background-color: #218838;
+}
