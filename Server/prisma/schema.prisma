@@ -49,14 +49,17 @@ model User {
   updatedAt DateTime   @updatedAt
   Order     Order[]
   Payment   Payment[]
+  Meal      Meal[]
 }
 
 model Category {
-  id        Int       @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   products  Product[]
+  MealItem  MealItem[]
+  Meal      Meal[]
 }
 
 model Product {
@@ -64,6 +67,7 @@ model Product {
   name       String
   image      String
   price      Decimal
+  quantity   Int         @default(1)
   foodType   Food_type   @default(VEG)
   categoryId Int
   category   Category    @relation(fields: [categoryId], references: [id])
@@ -71,6 +75,7 @@ model Product {
   updatedAt  DateTime    @updatedAt
   cartitems  CartItem[]
   OrderItem  OrderItem[]
+  MealItem   MealItem[]
 }
 
 model CartItem {
@@ -79,6 +84,8 @@ model CartItem {
   user      User     @relation(fields: [userId], references: [id])
   productId Int
   product   Product  @relation(fields: [productId], references: [id])
+  mealId    Int?
+  meal      Meal?    @relation(fields: [mealId], references: [id])
   quantity  Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -145,4 +152,35 @@ model Feedback {
   comment   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Meal {
+  id         Int        @id @default(autoincrement())
+  userId     Int
+  user       User       @relation(fields: [userId], references: [id])
+  name       String
+  image      String
+  price      Decimal
+  quantity   Int
+  categoryId Int
+  category   Category   @relation(fields: [categoryId], references: [id])
+  foodType   Food_type  @default(VEG)
+  mealItems  MealItem[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  CartItem   CartItem[]
+}
+
+model MealItem {
+  id         Int      @id @default(autoincrement())
+  mealId     Int
+  meal       Meal     @relation(fields: [mealId], references: [id])
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  price      Decimal
+  quantity   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

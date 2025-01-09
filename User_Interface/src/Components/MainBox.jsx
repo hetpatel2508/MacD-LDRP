@@ -1,4 +1,6 @@
 import React from 'react'
+import IntroSvg from '../assets/prince.svg'
+
 
 export default function MainBox() {
     return (
@@ -13,7 +15,9 @@ export default function MainBox() {
             </div>
             <div className='w-[100%] h-[190px] bg-cyan-100 flex flex-col mt-9'>
                 <div className='w-full h-[50px] bg-cyan-200 flex items-center text-3xl font-[600] ml-[40px]'>Discover our new Loyalty Program</div>
-                <div className='w-full h-[calc(100%-50px)] bg-red-300'></div>
+                <div className='w-full h-[calc(100%-10px)] bg-red-300'>
+                    <img src={IntroSvg}  className='w-full h-full' alt="" />
+                </div>
             </div>
 
 
