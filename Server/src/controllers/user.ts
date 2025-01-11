@@ -7,6 +7,7 @@ import { compareSync, hashSync } from 'bcrypt';
 import { ErrorCode } from '../exceptions/root';
 // import * as jwt from 'jsonwebtoken';
 import jsonwebtoken from 'jsonwebtoken';
+import { Role } from '@prisma/client';
 
 export const getUser = (req: any, res: any) => {
   res.send('get user');
@@ -118,4 +119,39 @@ export const deleteUser = async (req: Request, res: Response) => {
     message: 'User deleted successfully',
     data: user,
   });
+};
+
+export const getAllUsers = async (req: Request, res: Response) => {
+  const users = await prisma.user.findMany();
+  res.status(200).json({
+    message: 'Users fetched successfully',
+    data: users,
+  });
+};
+
+export const changeRole = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { role } = req.body;
+
+  if (role === Role.ADMIN || role === Role.CUSTOMER || role === Role.EMPLOYEE) {
+    const user = await prisma.user.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        role: role,
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException('User not found', ErrorCode.USER_NOT_FOUND);
+    }
+
+    res.status(200).json({
+      message: 'User role updated successfully',
+      data: user,
+    });
+  } else {
+    throw new BadRequestException('Invalid role', ErrorCode.UNPROCESSABLE_ENTITY);
+  }
 };

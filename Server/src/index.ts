@@ -7,17 +7,16 @@ import { getOrderNumber } from './controllers/order';
 
 const app: Express = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 app.use(
   cors({
     origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   }),
 );
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use('/', rootRouter);
 app.use(errorMiddleware);

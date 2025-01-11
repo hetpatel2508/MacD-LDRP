@@ -1,24 +1,19 @@
 import React from 'react';
-import Intro from './Components/Intro';
-import Options from './Components/Options';
 import Navbar from './Components/Navbar';
-import MainBox from './Components/MainBox';
 import Sidebar from './Components/Sidebar';
-import SubBox from './Components/SubBox';
 import User from './Components/User';
 import Category from './Components/Category';
 import Payments from './Components/Payments';
 import Orders from './Components/Orders';
 import Feedback from './Components/Feedback';
 import Products from './Components/Products';
+import Login from './Components/Login';
+import PrivateRoute from './Components/PrivateRoute';
 
 import { BrowserRouter, Route, Routes } from 'react-router';
 
 export default function App() {
-  const [showIntro, setShowIntro] = React.useState(true);
-  const [showOptions, setShowOptions] = React.useState(true);
 
-  const [OrderType, setOrderType] = React.useState('');
   return (
     <BrowserRouter>
       <div className="w-full h-full">
@@ -30,12 +25,62 @@ export default function App() {
             </div>
             <div className="h-full w-[calc(100%-270px)] ml-[270px] mt-[80px]  ">
               <Routes>
-                <Route path="/" element={<User />} />
-                <Route path="/Products" element={<Products />} />
-                <Route path="/Category" element={<Category />} />
-                <Route path="/Orders" element={<Orders />} />
-                <Route path="/Feedbacks" element={<Feedback />} />
-                <Route path="/Payments" element={<Payments />} />
+                <Route
+                  path="/"
+                  element={
+                    <PrivateRoute>
+                      <User />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/Products"
+                  element={
+                    <PrivateRoute>
+                      <Products />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/Category"
+                  element={
+                    <PrivateRoute>
+                      <Category />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/Orders"
+                  element={
+                    <PrivateRoute>
+                      <Orders />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/Feedbacks"
+                  element={
+                    <PrivateRoute>
+                      <Feedback />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/Payments"
+                  element={
+                    <PrivateRoute>
+                      <Payments />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/Login"
+                  element={
+                    <PrivateRoute>
+                      <Login />
+                    </PrivateRoute>
+                  }
+                />
                 {/* <Route path="/:id" element={<SubBox />} /> */}
               </Routes>
             </div>

@@ -1,15 +1,37 @@
 import React, { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
+import Cookies from 'js-cookie';
 
 export default function User() {
-  const [users, setUsers] = useState([
-    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin' },
-    { id: 2, name: 'Jane Doe', email: 'jane@example.com', role: 'User' },
-    { id: 3, name: 'Bob Smith', email: 'bob@example.com', role: 'Pornstar' },
-  ]);
-
+  const [users, setUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
+  const [serverError, setServerError] = useState('');
   const tableRef = useRef();
+
+  // Fetch users from the database on component mount
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await fetch('http://localhost:6868/user', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `${Cookies.get('token')}`,
+          }
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          setServerError(data.message + ' (' + data.errorCode + ')');
+        } else {
+          setUsers(await data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    }
+    fetchUsers();
+  }, []);
 
   // GSAP animation for rows
   useEffect(() => {
@@ -24,29 +46,65 @@ export default function User() {
     setEditingUser(user);
   };
 
-  const handleSave = () => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === editingUser.id ? editingUser : u
-      )
-    );
-    setEditingUser(null);
+  const handleSave = async () => {
+    try {
+      const response = await fetch(`http://localhost:6868/user/${editingUser.id}`, {
+        method: 'PATCH', // Update user in the database
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `${Cookies.get('token')}`,
+        },
+        body: JSON.stringify({
+          role: editingUser.role,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setServerError(data.message + ' (' + data.errorCode + ')');
+      }
+
+      setUsers((prev) =>
+        prev.map((u) => (u.id === editingUser.id ? editingUser : u))
+      );
+      setEditingUser(null);
+    } catch (error) {
+      console.error('Error saving user:', error);
+      setServerError(error.message);
+    }
   };
 
-  const handleDelete = (id) => {
-    gsap.to(tableRef.current.querySelector(`tr[data-id="${id}"]`), {
-      opacity: 0,
-      y: -20,
-      duration: 0.3,
-      onComplete: () => {
-        setUsers((prev) => prev.filter((user) => user.id !== id));
-      },
-    });
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:6868/user/${id}`, {
+        method: 'DELETE', // Delete user in the database
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `${Cookies.get('token')}`,
+        }
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setServerError(data.message + ' (' + data.errorCode + ')');
+      }
+
+      gsap.to(tableRef.current.querySelector(`tr[data-id="${id}"]`), {
+        opacity: 0,
+        y: -20,
+        duration: 0.3,
+        onComplete: () => {
+          setUsers((prev) => prev.filter((user) => user.id !== id));
+        },
+      });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      setServerError(error.message);
+    }
   };
 
   return (
-    <div className="w-full h-full flex flex-col items-center  overflow-x-hidden p-4">
-      <table className="w-full " ref={tableRef}>
+    <div className="w-full h-full flex flex-col items-center overflow-x-hidden p-4">
+      <table className="w-full" ref={tableRef}>
         <thead>
           <tr>
             <th>Name</th>
@@ -55,36 +113,14 @@ export default function User() {
             <th></th>
           </tr>
         </thead>
-        <tbody className='text-center'>
+        <tbody className="text-center">
           {users.map((user) => (
             <tr key={user.id} data-id={user.id}>
               <td>
-                {editingUser?.id === user.id ? (
-                  <input
-                    type="text"
-                    value={editingUser.name}
-                    onChange={(e) =>
-                      setEditingUser({ ...editingUser, name: e.target.value })
-                    }
-                    className="border rounded px-2 py-1"
-                  />
-                ) : (
-                  user.name
-                )}
+                {user.name}
               </td>
               <td>
-                {editingUser?.id === user.id ? (
-                  <input
-                    type="email"
-                    value={editingUser.email}
-                    onChange={(e) =>
-                      setEditingUser({ ...editingUser, email: e.target.value })
-                    }
-                    className="border rounded px-2 py-1"
-                  />
-                ) : (
-                  user.email
-                )}
+                {user.email}
               </td>
               <td>
                 {editingUser?.id === user.id ? (
@@ -95,9 +131,9 @@ export default function User() {
                     }
                     className="border rounded px-2 py-1"
                   >
-                    <option value="Admin">Admin</option>
-                    <option value="User">User</option>
-                    <option value="Employee">Employee</option>
+                    <option value="ADMIN">Admin</option>
+                    <option value="CUSTOMER">Customer</option>
+                    <option value="EMPLOYEE">Employee</option>
                   </select>
                 ) : (
                   user.role
@@ -106,7 +142,7 @@ export default function User() {
               <td>
                 {editingUser?.id === user.id ? (
                   <button
-                    className="bg-green-500 hover:bg-green-700 text-white font-bold  h-[31px] w-[60px] rounded-full"
+                    className="bg-green-500 hover:bg-green-700 text-white font-bold h-[31px] w-[60px] rounded-full"
                     onClick={handleSave}
                   >
                     Save
@@ -132,6 +168,15 @@ export default function User() {
           ))}
         </tbody>
       </table>
+      {
+        serverError && (
+          <div className='w-full h-[100px] flex items-center  text-center'>
+            <div className='w-[80%] ml-[70px] text-red-500'>
+              {serverError}
+            </div>
+          </div>
+        )
+      }
     </div>
   );
 }
