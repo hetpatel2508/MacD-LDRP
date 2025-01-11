@@ -17,6 +17,15 @@ export default function Orders() {
       items: [
         { itemName: "Fish Tacos", quantity: 3, itemPrice: 110 },
         { itemName: "Lemonade", quantity: 2, itemPrice: 45 },
+        { itemName: "Lemonade", quantity: 2, itemPrice: 45 },
+        { itemName: "Lemonade", quantity: 2, itemPrice: 45 },
+        { itemName: "Lemonade", quantity: 2, itemPrice: 45 },
+        { itemName: "Lemonade", quantity: 2, itemPrice: 45 },
+        { itemName: "Lemonade", quantity: 2, itemPrice: 45 },
+        { itemName: "Lemonade", quantity: 2, itemPrice: 45 },
+        { itemName: "Lemonade", quantity: 2, itemPrice: 45 },
+        { itemName: "Lemonade", quantity: 2, itemPrice: 45 },
+        { itemName: "Lemonade", quantity: 2, itemPrice: 45 },
       ],
       status: "Ready",
     },
@@ -157,7 +166,7 @@ export default function Orders() {
           return (
             <div
               key={order._id}
-              className="w-[300px] h-[400px] bg-gray-100 border rounded-lg p-4 shadow-md flex flex-col gap-4"
+              className="w-[300px] h-[360px] bg-gray-100 border rounded-lg p-4 shadow-md flex flex-col gap-4"
             >
               {/* Order ID */}
               <div className="text-lg font-bold">Order ID: {order._id}</div>
@@ -166,7 +175,7 @@ export default function Orders() {
               <div className="text-gray-600">{order.email}</div>
 
               {/* Item Details */}
-              <div className="flex flex-col gap-2 border rounded-lg p-2 overflow-y-auto h-[180px]">
+              <div className="flex flex-col gap-2 border rounded-lg p-2 overflow-y-auto h-[140px]">
                 {order.items.map((item, index) => (
                   <div
                     key={index}

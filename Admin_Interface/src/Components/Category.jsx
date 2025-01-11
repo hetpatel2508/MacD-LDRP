@@ -1,12 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 
 export default function Category() {
-  const [categories, setCategories] = useState([
-    { id: 1, name: "Electronics" },
-    { id: 2, name: "Furniture" },
-    { id: 3, name: "Clothing" },
-  ]);
+  const [categories, setCategories] = useState([]);
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [serverError, setServerError] = useState("");
+
+  // Fetch categories from the database when component mounts
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const response = await fetch("http://localhost:6868/category", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `${Cookies.get('token')}`,
+          },
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          setServerError(data.message + " (" + data.errorCode + ")");
+        } else {
+          setCategories(data.data); // Assuming data contains categories in 'data' key
+        }
+      } catch (error) {
+        setServerError("Failed to fetch categories");
+      }
+    }
+    fetchCategories();
+  }, []);
 
   const handleEditClick = (id) => {
     const updatedCategories = categories.map((category) =>
@@ -15,27 +37,68 @@ export default function Category() {
     setCategories(updatedCategories);
   };
 
-  const handleSaveClick = (id, newName) => {
-    const updatedCategories = categories.map((category) =>
-      category.id === id ? { ...category, name: newName, isEditing: false } : category
-    );
-    setCategories(updatedCategories);
+  const handleSaveClick = async (id, newName) => {
+    try {
+      const response = await fetch(`http://localhost:6868/category/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `${Cookies.get('token')}`,
+        },
+        body: JSON.stringify({ name: newName }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setServerError(data.message + " (" + data.errorCode + ")");
+      } else {
+        const updatedCategories = categories.map((category) =>
+          category.id === id ? { ...category, name: newName, isEditing: false } : category
+        );
+        setCategories(updatedCategories);
+      }
+    } catch (error) {
+      setServerError("Failed to save category");
+    }
   };
 
-  const handleDeleteClick = (id) => {
-    const updatedCategories = categories.filter((category) => category.id !== id);
-    setCategories(updatedCategories);
+  const handleDeleteClick = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:6868/category/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `${Cookies.get('token')}`,
+        },
+      });
+      if (!response.ok) throw new Error("Failed to delete category");
+
+      const updatedCategories = categories.filter((category) => category.id !== id);
+      setCategories(updatedCategories);
+    } catch (error) {
+      setServerError("Failed to delete category");
+    }
   };
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (newCategoryName.trim()) {
-      const newCategory = {
-        id: Date.now(), // Unique ID
-        name: newCategoryName.trim(),
-        isEditing: false,
-      };
-      setCategories([...categories, newCategory]);
-      setNewCategoryName("");
+      try {
+        const response = await fetch("http://localhost:6868/category", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `${Cookies.get('token')}`,
+          },
+          body: JSON.stringify({ name: newCategoryName.trim() }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          setServerError(data.message + " (" + data.errorCode + ")");
+        } else {
+          setCategories([...categories, { ...data.data, isEditing: false }]);
+          setNewCategoryName("");
+        }
+      } catch (error) {
+        setServerError("Failed to add category");
+      }
     }
   };
 
@@ -125,6 +188,15 @@ export default function Category() {
           <div className="text-center text-gray-500 mt-8">No categories available.</div>
         )}
       </div>
+
+      {/* Error Message */}
+      {serverError && (
+        <div className="w-full h-[100px] flex items-center justify-center text-center">
+          <div className="w-[80%] ml-[70px] text-red-500">
+            {serverError}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
