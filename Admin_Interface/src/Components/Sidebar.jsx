@@ -84,6 +84,13 @@ export default function Sidebar() {
                   </div>
                 </div>
               </Link>
+      <Link to={`/Meals`} className="w-full h-[50px]">
+                <div className="w-full h-[50px] border  flex items-center">
+                  <div className="w-[95%] h-full flex items-center justify-center pt-0.5 ">
+                    <p className="text-xl font-[400]">Meals</p>
+                  </div>
+                </div>
+              </Link>
       <Link to={`/Feedbacks`} className="w-full h-[50px]">
                 <div className="w-full h-[50px] border   flex items-center">
                   <div className="w-[95%] h-full flex items-center justify-center pt-0.5 ">

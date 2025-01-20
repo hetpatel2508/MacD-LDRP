@@ -10,6 +10,14 @@ export const createProduct = async (req: Request, res: Response) => {
   createProductSchema.parse(req.body);
   const { name, image, price, foodType, categoryId } = req.body;
 
+  const category = await prisma.category.findUnique({
+    where: { id: categoryId },
+  });
+
+  if (!category) {
+    throw new NotFoundException('Category not found', ErrorCode.UNPROCESSABLE_ENTITY);
+  }
+
   // Create the product in the database
   const product = await prisma.product.create({
     data: {
@@ -45,6 +53,9 @@ export const getProductByCategory = async (req: Request, res: Response) => {
   const product = await prisma.product.findMany({
     where: {
       categoryId: Number(id),
+    },
+    include: {
+      category: true,
     },
   });
 
@@ -82,19 +93,19 @@ export const deleteProduct = async (req: Request, res: Response) => {
 export const updateProduct = async (req: Request, res: Response) => {
   updateProductSchema.parse(req.body);
   const { id } = req.params;
-    const { name, image, price, foodType, categoryId } = req.body;
-    
-    let product = await prisma.product.findUnique({
-      where: {
-        id: Number(id),
-      },
-    });
-    
-    if (!product) {
-      throw new NotFoundException('Product not found', ErrorCode.UNPROCESSABLE_ENTITY);
-    }
+  const { name, image, price, foodType, categoryId } = req.body;
 
-   product = await prisma.product.update({
+  let product = await prisma.product.findUnique({
+    where: {
+      id: Number(id),
+    },
+  });
+
+  if (!product) {
+    throw new NotFoundException('Product not found', ErrorCode.UNPROCESSABLE_ENTITY);
+  }
+
+  product = await prisma.product.update({
     where: {
       id: Number(id),
     },

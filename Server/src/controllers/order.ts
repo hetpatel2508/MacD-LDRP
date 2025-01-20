@@ -14,7 +14,72 @@ cron.schedule('0 0 * * *', async () => {
   );
 });
 
+// export const createOrders = async (req: Request, res: Response) => {
+//   const cart = await prisma.cartItem.findMany({
+//     where: {
+//       userId: Number(req.user?.id),
+//     },
+//     include: {
+//       product: true,
+//     },
+//   });
+
+//   const netAmount = cart.reduce(
+//     (total, item) => total + Number(item.product.price) * Number(item.quantity),
+//     0,
+//   );
+
+//   const totalQuantity = cart.reduce((total, item) => total + Number(item.quantity), 0);
+
+//   const orderNumber = generatedOrderNumber++;
+
+//   const order = await prisma.order.create({
+//     data: {
+//       userId: Number(req.user?.id),
+//       orderNumber: orderNumber,
+//       netAmount: netAmount,
+//       totalQuantity: totalQuantity,
+//     },
+//   });
+
+//   if (cart.length === 0) {
+//     throw new BadRequestException('Cart is empty', ErrorCode.UNPROCESSABLE_ENTITY);
+//   }
+
+//   let orderItems: any = [];
+//   cart.forEach(async (item, index) => {
+//     orderItems[index] = await prisma.orderItem.create({
+//       data: {
+//         orderId: Number(order.id),
+//         quantity: Number(item.quantity),
+//         productId: Number(item.product.id),
+//         price: Number(item.product.price),
+//       },
+//     });
+//   });
+
+//   const orderEvent = await prisma.orderEvent.create({
+//     data: {
+//       orderId: Number(order.id),
+//     },
+//   });
+
+//   //   await prisma.cartItem.deleteMany({
+//   //     where: {
+//   //       userId: Number(req.user?.id),
+//   //     },
+//   //   });
+
+//   res.status(200).json({
+//     message: 'Order created successfully',
+//     order: order,
+//     orderEvent: orderEvent,
+//     orderItems: orderItems,
+//   });
+// };
+
 export const createOrders = async (req: Request, res: Response) => {
+  // Step 1: Fetch the user's cart
   const cart = await prisma.cartItem.findMany({
     where: {
       userId: Number(req.user?.id),
@@ -24,15 +89,20 @@ export const createOrders = async (req: Request, res: Response) => {
     },
   });
 
+  // Step 2: Check if the cart is empty
+  if (cart.length === 0) {
+    throw new BadRequestException('Cart is empty', ErrorCode.UNPROCESSABLE_ENTITY);
+  }
+
+  // Step 3: Calculate the total amount and quantity
   const netAmount = cart.reduce(
     (total, item) => total + Number(item.product.price) * Number(item.quantity),
     0,
   );
-
   const totalQuantity = cart.reduce((total, item) => total + Number(item.quantity), 0);
 
+  // Step 4: Generate the order
   const orderNumber = generatedOrderNumber++;
-
   const order = await prisma.order.create({
     data: {
       userId: Number(req.user?.id),
@@ -42,39 +112,40 @@ export const createOrders = async (req: Request, res: Response) => {
     },
   });
 
-  if (cart.length === 0) {
-    throw new BadRequestException('Cart is empty', ErrorCode.UNPROCESSABLE_ENTITY);
-  }
+  // Step 5: Create order items using Promise.all
+  const orderItems = await Promise.all(
+    cart.map(async (item) => {
+      return prisma.orderItem.create({
+        data: {
+          orderId: order.id,
+          productId: item.product.id,
+          quantity: item.quantity,
+          price: Number(item.product.price),
+        },
+      });
+    }),
+  );
 
-  let orderItems: any = [];
-  cart.forEach(async (item, index) => {
-    orderItems[index] = await prisma.orderItem.create({
-      data: {
-        orderId: Number(order.id),
-        quantity: Number(item.quantity),
-        productId: Number(item.product.id),
-        price: Number(item.product.price),
-      },
-    });
-  });
-
+  // Step 6: Create an order event
   const orderEvent = await prisma.orderEvent.create({
     data: {
-      orderId: Number(order.id),
+      orderId: order.id,
     },
   });
 
-  //   await prisma.cartItem.deleteMany({
-  //     where: {
-  //       userId: Number(req.user?.id),
-  //     },
-  //   });
+  // Step 7: Optionally clear the cart
+  // await prisma.cartItem.deleteMany({
+  //   where: {
+  //     userId: Number(req.user?.id),
+  //   },
+  // });
 
+  // Step 8: Respond with the order details
   res.status(200).json({
     message: 'Order created successfully',
     order: order,
     orderEvent: orderEvent,
-    orderItems: orderItems,
+    orderItems: orderItems, // This array will not have null values
   });
 };
 

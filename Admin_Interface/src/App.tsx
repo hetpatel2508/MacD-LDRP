@@ -9,10 +9,17 @@ import Feedback from './Components/Feedback';
 import Products from './Components/Products';
 import Login from './Components/Login';
 import PrivateRoute from './Components/PrivateRoute';
-
-import { BrowserRouter, Route, Routes } from 'react-router';
+import Cookie from 'js-cookie';
+import { BrowserRouter, Route, Routes, useNavigate } from 'react-router';
+import Meals from './Components/Meals';
 
 export default function App() {
+  React.useEffect(() => {
+    const token = Cookie.get('token');
+    if (!token) {
+      window.location.href = '/login';
+    }
+  }, []);
 
   return (
     <BrowserRouter>
@@ -70,6 +77,14 @@ export default function App() {
                   element={
                     <PrivateRoute>
                       <Payments />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/Meals"
+                  element={
+                    <PrivateRoute>
+                      <Meals />
                     </PrivateRoute>
                   }
                 />

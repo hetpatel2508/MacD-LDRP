@@ -163,10 +163,15 @@ export default function Orders() {
             0
           );
 
+          const totalQuantity = order.items.reduce(
+            (sum, item) => sum + item.quantity,
+            0
+          );
+
           return (
             <div
               key={order._id}
-              className="w-[300px] h-[360px] bg-gray-100 border rounded-lg p-4 shadow-md flex flex-col gap-4"
+              className="w-[300px] h-[390px] bg-gray-100 border rounded-lg p-4 shadow-md flex flex-col gap-4"
             >
               {/* Order ID */}
               <div className="text-lg font-bold">Order ID: {order._id}</div>
@@ -175,7 +180,7 @@ export default function Orders() {
               <div className="text-gray-600">{order.email}</div>
 
               {/* Item Details */}
-              <div className="flex flex-col gap-2 border rounded-lg p-2 overflow-y-auto h-[140px]">
+              <div className="flex flex-col gap-2 border rounded-lg p-2 overflow-y-auto min-h-[130px]">
                 {order.items.map((item, index) => (
                   <div
                     key={index}
@@ -200,19 +205,24 @@ export default function Orders() {
 
               {/* Total Price */}
               <div className="flex justify-between items-center">
+                <div className="text-lg font-semibold">Items</div>
+                <div className="text-xl font-bold">{totalQuantity}</div>
+              </div>
+
+              {/* Total Price */}
+              <div className="flex justify-between items-center">
                 <div className="text-lg font-semibold">Total</div>
                 <div className="text-xl font-bold">${totalPrice}</div>
               </div>
 
               {/* Order Status */}
               <div
-                className={`py-1 px-3 rounded-full text-center text-white ${
-                  order.status === "Pending"
+                className={`py-1 px-3 rounded-full text-center text-white ${order.status === "Pending"
                     ? "bg-yellow-500"
                     : order.status === "Completed"
-                    ? "bg-green-500"
-                    : "bg-gray-500"
-                }`}
+                      ? "bg-green-500"
+                      : "bg-gray-500"
+                  }`}
               >
                 {order.status}
               </div>

@@ -57,7 +57,7 @@ export default function Category() {
         setCategories(updatedCategories);
       }
     } catch (error) {
-      setServerError("Failed to save category");
+      setServerError("Failed to save category");  
     }
   };
 

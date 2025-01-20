@@ -14,8 +14,8 @@ import adminMiddleware from '../middlewares/admin';
 const categoryRouter = Router();
 
 categoryRouter.post('/', [authMiddleware, adminMiddleware], errorHandler(createCategory));
-categoryRouter.get('/', [authMiddleware, adminMiddleware], errorHandler(getCategories));
-categoryRouter.get('/:id', [authMiddleware, adminMiddleware], errorHandler(getSpecificCategories));
+categoryRouter.get('/', [authMiddleware], errorHandler(getCategories));
+categoryRouter.get('/:id', [authMiddleware], errorHandler(getSpecificCategories));
 categoryRouter.delete('/:id', [authMiddleware, adminMiddleware], errorHandler(deleteCategory));
 categoryRouter.patch('/:id', [authMiddleware, adminMiddleware], errorHandler(updateCategory));
 

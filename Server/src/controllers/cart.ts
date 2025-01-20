@@ -82,3 +82,13 @@ export const getCart = async (req: Request, res: Response): Promise<any> => {
     totalQuantity,
   });
 };
+
+export const clearCart = async (req: Request, res: Response): Promise<any> => {
+  const cart = await prisma.cartItem.deleteMany({
+    where: {
+      userId: Number(req.user?.id),
+    },
+  });
+  
+  res.status(200).json(cart);
+};

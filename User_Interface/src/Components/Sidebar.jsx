@@ -7,63 +7,62 @@ export default function Sidebar() {
         {
             id: 1,
             img: EatIn,
-            name: "Value Meal"
+            name: "Value Meal",
+            Link: "value-meal"
         },
         {
             id: 2,
             img: EatIn,
-            name: "Burger & Wraps"
-        },
-        {
-            id: 3,
-            img: EatIn,
-            name: "Festive Sharing Meal"
+            name: "Burger & Wraps",
+            Link: "burger-wraps"
         },
         {
             id: 4,
             img: EatIn,
-            name: "Coffee & Beverages"
+            name: "Coffee & Beverages",
+            Link: "coffee-beverages"
         },
         {
             id: 5,
             img: EatIn,
-            name: "Frish & Sides"
+            name: "Frish & Sides",
+            Link: "fries-sides"
         },
         {
             id: 6,
             img: EatIn,
-            name: "Happy Meal"
+            name: "Happy Meal",
+            Link: "happy-meal"
         },
         {
             id: 7,
             img: EatIn,
-            name: "Desserts"
-        },
-        {
-            id: 8,
-            img: EatIn,
-            name: "Cakes & Bakes"
+            name: "Desserts",
+            Link: "desserts"
         },
         {
             id: 9,
             img: EatIn,
-            name: "McSavers + Combos"
+            name: "McSavers + Combos",
+            Link: "mc-savers"
         },
         {
             id: 10,
             img: EatIn,
-            name: "Condiments"
+            name: "Condiments",
+            Link: "condiments"
         },
         {
             id: 11,
             img: EatIn,
-            name: "No Onion No Garlic"
+            name: "No Onion No Garlic",
+            Link: "nong"
         }
     ]
     return (
         <div className='w-full h-full '>
 
-            <Link to="/" className='w-full h-[80px] mt-9 rounded-r-full bg-pink-200 flex items-center cursor-pointer'>
+            <Link to="/" className='w-full h-[80px] mt-9 rounded-r-full bg-gray-100 flex items-center cursor-pointer'>
                 <div className='ml-4 mr-4 max-w-[60px] max-h-[60px] rounded-full bg-black flex items-center justify-center overflow-hidden'>
                     <img src={EatIn} alt="" className='w-full h-full' />
                 </div>
@@ -73,27 +72,27 @@ export default function Sidebar() {
             </Link>
 
 
-            <div className='w-full min-h-[50px] mt-9 rounded-r-[15px] bg-pink-200'>
+            <div className='w-full min-h-[50px] mt-9 rounded-r-[15px] '>
                 {
                     data.map((item) => {
                         if (item.id === 1) {
                             return (
-                                <Link to={`/${item.id}`} className='w-full h-[50px]'>
-                                    <div className='w-full h-[50px] border rounded-tr-[15px] bg-pink-400 flex items-center'>
+                                <Link to={`/${item.Link}`} key={item.id} className='w-full h-[50px]'>
+                                    <div className='w-full h-[50px] border rounded-tr-[15px] bg-gray-100 flex items-center'>
                                         <div className='ml-2 mr-2 max-w-[50px] max-h-[50px] rounded-full bg-black flex items-center justify-center overflow-hidden'><img src={item.img} alt="" /></div>
-                                        <div className='w-[70%] h-full flex items-center pt-0.5 bg-cyan-100'>
+                                        <div className='w-[70%] h-full flex items-center pt-0.5 '>
                                             <p className='text-xl font-[400]'>{item.name}</p>
                                         </div>
                                     </div>
                                 </Link>
                             )
                         }
-                        else if (item.id === data.length) {
+                        else if (item.id === data.length + 2) {
                             return (
-                                <Link to={`/${item.id}`} className='w-full h-[50px]'>
-                                    <div className='w-full h-[50px] border rounded-br-[15px] bg-pink-400 flex items-center'>
+                                <Link to={`/${item.Link}`} key={item.id} className='w-full h-[50px]'>
+                                    <div className='w-full h-[50px] border rounded-br-[15px] bg-gray-100 flex items-center'>
                                         <div className='ml-2 mr-2 max-w-[50px] max-h-[50px] rounded-full bg-black flex items-center justify-center overflow-hidden'><img src={item.img} alt="" /></div>
-                                        <div className='w-[70%] h-full flex items-center pt-0.5 bg-cyan-100'>
+                                        <div className='w-[70%] h-full flex items-center pt-0.5 '>
                                             <p className='text-xl font-[400]'>{item.name}</p>
                                         </div>
                                     </div>
@@ -102,10 +101,10 @@ export default function Sidebar() {
                         }
                         else {
                             return (
-                                <Link to={`/${item.id}`} className='w-full h-[50px]'>
-                                    <div className='w-full h-[50px] border bg-pink-400 flex items-center'>
+                                <Link to={`/${item.Link}`} key={item.id} className='w-full h-[50px]'>
+                                    <div className='w-full h-[50px] border bg-gray-100 flex items-center'>
                                         <div className='ml-2 mr-2 max-w-[50px] max-h-[50px] rounded-full bg-black flex items-center justify-center overflow-hidden'><img src={item.img} alt="" /></div>
-                                        <div className='w-[70%] h-full flex items-center pt-0.5 bg-cyan-100'>
+                                        <div className='w-[70%] h-full flex items-center pt-0.5 '>
                                             <p className='text-xl font-[400]'>{item.name}</p>
                                         </div>
                                     </div>
