@@ -103,6 +103,7 @@ export const createOrders = async (req: Request, res: Response) => {
 
   // Step 4: Generate the order
   const orderNumber = generatedOrderNumber++;
+
   const order = await prisma.order.create({
     data: {
       userId: Number(req.user?.id),
@@ -139,6 +140,32 @@ export const createOrders = async (req: Request, res: Response) => {
   //     userId: Number(req.user?.id),
   //   },
   // });
+
+  const sokcetOrder = await prisma.order.findUniqueOrThrow({
+    where: {
+      id: order.id,
+    },
+    include: {
+      OrderItem: {
+        include: {
+          product: {
+            include: {
+              category: true,
+            },
+          },
+        },
+      },
+      OrderEvent: true,
+    },
+  });
+
+  const io = req.app.get('socketio');
+
+  if (!io) {
+    throw new BadRequestException('SocketIO instance not found', ErrorCode.UNPROCESSABLE_ENTITY);
+  } else {
+    io.emit('OrderCreated', sokcetOrder);
+  }
 
   // Step 8: Respond with the order details
   res.status(200).json({
@@ -281,4 +308,35 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     data: order,
     orderEvent: updatedOrderEvent,
   });
+};
+
+export const updateIsPaid = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { isPaid } = req.body;
+
+  if (isPaid !== true && isPaid !== false) {
+    // if (isPaid !== true ) {
+    throw new BadRequestException('isPaid must be true or false', ErrorCode.UNPROCESSABLE_ENTITY);
+  }
+  const order = await prisma.order.update({
+    where: {
+      id: Number(id),
+    },
+    data: {
+      isPaid: isPaid,
+    },
+  });
+
+  // io.emit('OrderisPaidUpdated', order.id);
+  const io = req.app.get('socketio');
+
+  if (!io) {
+    throw new BadRequestException('SocketIO instance not found', ErrorCode.UNPROCESSABLE_ENTITY);
+  } else {
+    io.emit('OrderisPaidUpdated', order.id);
+    res.status(200).json({
+      message: 'Order updated successfully',
+      data: order,
+    });
+  }
 };
