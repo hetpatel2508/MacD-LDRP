@@ -91,7 +91,7 @@ export default function ValueMeal() {
                         <div
                             key={product.id}
                             className='bg-white border shadow-md rounded-lg overflow-hidden hover:scale-103 transition-all duration-300 hover:shadow-2xl relative group'
-                            onClick={() => navigate(`/product/${product.id}`, { state: { product, category: product.category.name } })}
+                            onClick={() => navigate(`/product/${product.id}`, { state: { product, category: product.category.name , isMeal: true} })}
 
                         >
                             <img

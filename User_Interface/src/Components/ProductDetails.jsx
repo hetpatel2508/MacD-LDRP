@@ -5,13 +5,17 @@ import { addProduct } from '../store/slices/ProductSlice';
 
 export default function ProductDetails() {
     const { state } = useLocation();
-    const { product, category } = state;
+    const { product, category, isMeal } = state;
     const dispatch = useDispatch();
     const [quantity, setQuantity] = useState(1);
 
     const handleAddToCart = () => {
         // console.log("Added to cart:", { product, category, selectedQuantity: quantity });
-        dispatch(addProduct({ ...product, quantity: quantity }));
+        if (isMeal === true) {
+            dispatch(addProduct({ ...product, quantity: quantity, isMeal: true }));
+        } else {
+            dispatch(addProduct({ ...product, quantity: quantity, }));
+        }
     };
 
     const incrementQuantity = () => {

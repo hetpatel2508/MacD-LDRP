@@ -32,20 +32,47 @@ export default function Orders({ Products, handleChangesInStatus }) {
                     key={index}
                     className="flex items-center gap-4 border-b last:border-b-0 pb-2 last:pb-0"
                   >
-                    <div className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center">
-                      <img
-                        src={item.product.image}
-                        alt={item.product.name}
-                        className="w-full h-full object-cover rounded-md"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-[14.8px]">{item.product.name}</div>
-                      <div className="text-sm text-gray-500">
-                        Qty: {item.quantity}
-                      </div>
-                    </div>
-                    <div className="font-bold">${item.price}</div>
+                    {
+                      item.product && (
+                        <div className="flex items-center gap-4 border-b last:border-b-0 pb-2 last:pb-0">
+
+                          <div className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center">
+                            <img
+                              src={item.product.image}
+                              alt={item.product.name}
+                              className="w-full h-full object-cover rounded-md"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-semibold text-[14.8px]">{item.product.name}</div>
+                            <div className="text-sm text-gray-500">
+                              Qty: {item.quantity}
+                            </div>
+                          </div>
+                          <div className="font-bold">${item.price*item.quantity}</div>
+                        </div>
+                      )
+                    }
+                    {
+                      item.meal && (
+                        <div className="flex items-center gap-4 border-b last:border-b-0 pb-2 last:pb-0">
+                          <div className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center">
+                            <img
+                              src={item.meal.image}
+                              alt={item.meal.name}
+                              className="w-full h-full object-cover rounded-md"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-semibold text-[14.8px]">{item.meal.name}</div>
+                            <div className="text-sm text-gray-500">
+                              Qty: {item.quantity}
+                            </div>
+                          </div>
+                          <div className="font-bold">${item.price*item.quantity}</div>
+                        </div>
+                      )
+                    }
                   </div>
                 ))}
               </div>

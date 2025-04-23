@@ -91,7 +91,7 @@ export default function Sidebar() {
                   </div>
                 </div>
               </Link>
-      <Link to={`/Feedbacks`} className="w-full h-[50px]">
+      {/* <Link to={`/Feedbacks`} className="w-full h-[50px]">
                 <div className="w-full h-[50px] border   flex items-center">
                   <div className="w-[95%] h-full flex items-center justify-center pt-0.5 ">
                     <p className="text-xl font-[400]">Feedbacks</p>
@@ -111,7 +111,7 @@ export default function Sidebar() {
                     <p className="text-xl font-[400]">Payments</p>
                   </div>
                 </div>
-              </Link>
+              </Link> */}
                 
            
       </div>

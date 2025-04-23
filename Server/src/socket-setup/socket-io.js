@@ -17,9 +17,9 @@ export const initializeSocketIO = (server) => {
         try {
             // Fetch products from the database
             const cashCounterOrders = await prisma.order.findMany({
-                // where: {
-                //     isPaid: false,
-                // },
+                where: {
+                    isPaid: false,
+                },
                 include: {
                     OrderEvent: true,
                     OrderItem: {
@@ -28,8 +28,21 @@ export const initializeSocketIO = (server) => {
                                 include: {
                                     category: true,
                                 }
+                            },
+                            meal: {
+                                include: {
+                                    mealItems: {
+                                        include: {
+                                            product: {
+                                                include: {
+                                                    category: true,
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                        }
+                        },
                     }
                 },
             });
@@ -41,6 +54,49 @@ export const initializeSocketIO = (server) => {
             console.error('Error fetching products:', error);
             socket.emit('error', { message: 'Error fetching products' });
         }
+
+
+        try {
+            // Fetch products from the database
+            const inKitchenOrders = await prisma.order.findMany({
+                where: {
+                    orderStatus: 'PROCESSING',
+                },
+                include: {
+                    OrderEvent: true,
+                    OrderItem: {
+                        include: {
+                            product: {
+                                include: {
+                                    category: true,
+                                }
+                            },
+                            meal: {
+                                include: {
+                                    mealItems: {
+                                        include: {
+                                            product: {
+                                                include: {
+                                                    category: true,
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    }
+                },
+            });
+            
+
+            // Emit the products to the client
+            socket.emit('initializeInKitchenOrders', inKitchenOrders);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            socket.emit('error', { message: 'Error fetching products' });
+        }
+        
 
         // Placeholder for handling other operations
         socket.on('disconnect', () => {

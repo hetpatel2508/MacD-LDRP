@@ -3,10 +3,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { clearCart, removeProduct, updateQuantity } from '../store/slices/ProductSlice';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
+import TakeInputNameEmail from './TakeInputNameEmail.jsx';
 
-export default function Cart() {
+export default function Cart({ OrderType }) {
     const { products, TotalAmount } = useSelector((state) => state.products);
     const dispatch = useDispatch();
+
+    const [showForm, setShowForm] = React.useState(false);
 
     const handleRemove = (id) => {
         dispatch(removeProduct(id));
@@ -20,35 +23,70 @@ export default function Cart() {
         }
     };
 
-    const handlePaymentBtn = async () => {
+    const handlePaymentBtn = async (email, name, pm) => {
         if (products.length === 0) {
             toast.error('Your cart is empty!');
             return;
         }
 
-        try {
-            for (const product of products) {
-                const response = await fetch('http://localhost:6868/cart', {
+
+        products.forEach(async ele => {
+            let res
+
+            if (ele.mealItems) {
+                console.log("it is meal..!");
+                console.log(ele);
+
+                res = await fetch(`http://localhost:6868/cart/meal`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM2MDc0MDkyfQ.V5oHrUQ0DGA4fqfnMGTsWU7VleELyOUk9DeJuVBhasw`,
                     },
                     body: JSON.stringify({
-                        productId: product.id,
-                        quantity: product.quantity,
+                        productId: ele.id,
+                        quantity: ele.quantity,
                     }),
-                });
+                })
+            } else {
+                console.log("it is not meal..!");
+                console.log(ele);
 
-                const data = await response.json();
-                if (!response.ok) {
-                    throw new Error(data.message);
-                }
+                res = await fetch(`http://localhost:6868/cart`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM2MDc0MDkyfQ.V5oHrUQ0DGA4fqfnMGTsWU7VleELyOUk9DeJuVBhasw`,
+                    },
+                    body: JSON.stringify({
+                        productId: ele.id,
+                        quantity: ele.quantity,
+                    }),
+                })
             }
 
+            const cartResponse = await res.json();
+
+            if (!res.ok) {
+                toast.error(cartResponse.message);
+            }
+
+        });
+
+
+
+        try {
+            const paymentMethod = pm === 'cash' ? 'CASH' : 'ONLINE';
+            const ordermethod = OrderType === 'EatIn' ? 'EATIN' : 'TAKEAWAY';
             const paymentResponse = await axios.post(
                 'http://localhost:6868/payment/checkout',
-                { amount: TotalAmount },
+                {
+                    amount: TotalAmount,
+                    email: email,
+                    name: name,
+                    OrderType: ordermethod,
+                    paymentMethod: paymentMethod,
+                },
                 { withCredentials: true }
             );
 
@@ -79,22 +117,23 @@ export default function Cart() {
         } catch (err) {
             toast.error(err.message || 'Something went wrong!');
         }
+
     };
 
     const clearCartBtn = async () => {
         try {
-            // const res = await fetch('http://localhost:6868/cart', {
-            //     method: 'DELETE',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         Authorization: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM2MDc0MDkyfQ.V5oHrUQ0DGA4fqfnMGTsWU7VleELyOUk9DeJuVBhasw`,
-            //     },
-            // });
+            const res = await fetch('http://localhost:6868/cart', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM2MDc0MDkyfQ.V5oHrUQ0DGA4fqfnMGTsWU7VleELyOUk9DeJuVBhasw`,
+                },
+            });
 
-            // const data = await res.json();
-            // if (!res.ok) {
-            //     throw new Error(data.message);
-            // }
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message);
+            }
 
             dispatch(clearCart());
             toast.success('Cart cleared!');
@@ -105,6 +144,8 @@ export default function Cart() {
 
     return (
         <div className="flex justify-center py-12 px-4">
+            <TakeInputNameEmail showForm={showForm} setShowForm={setShowForm} OrderType={OrderType} handlePaymentBtn={handlePaymentBtn} />
+
             <div className="bg-white shadow-xl rounded-lg w-full max-w-4xl p-8 md:p-12">
                 <h1 className="text-4xl font-semibold text-gray-800 text-center mb-8">Your Cart</h1>
 
@@ -170,7 +211,7 @@ export default function Cart() {
                         {/* Checkout Button */}
                         <div className="text-center mt-8">
                             <button
-                                onClick={handlePaymentBtn}
+                                onClick={()=> setShowForm(true)}
                                 className="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-lg font-bold rounded-md shadow-lg hover:scale-105 transform transition duration-300 ease-in-out focus:outline-none"
                             >
                                 Proceed to Checkout
@@ -186,6 +227,7 @@ export default function Cart() {
                                 Clear Cart
                             </button>
                         </div>
+
                     </>
                 )}
                 <Toaster />

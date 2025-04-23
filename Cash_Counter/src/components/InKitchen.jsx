@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-export default function InKitchen({ Products, handleSaveChanges }) {
+export default function InKitchen({ Products, handleChangesInStatus }) {
     const [timers, setTimers] = useState({});
     const [toggled, setToggled] = useState({});
     const [canSave, setCanSave] = useState({});
@@ -91,9 +91,9 @@ export default function InKitchen({ Products, handleSaveChanges }) {
 
                             {/* Item Details */}
                             <div className="flex flex-col gap-2 border rounded-lg p-2 overflow-y-auto min-h-[130px] max-h-[150px]">
-                                {order.OrderItem.map((item) => (
+                                {order.OrderItem.map((item,index) => (
                                     <div
-                                        key={item.product.id}
+                                        key={index}
                                         className="flex items-center gap-4 border-b last:border-b-0 pb-2 last:pb-0"
                                     >
                                         {/* Item Image */}
@@ -142,7 +142,7 @@ export default function InKitchen({ Products, handleSaveChanges }) {
                                             : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                         }`}
                                     disabled={!canSave[order.id]}
-                                    onClick={() => handleSave(order.id)}
+                                    onClick={() => {handleChangesInStatus(order.id)}}
                                 >
                                     Save
                                 </button>

@@ -4,6 +4,7 @@ import prisma from '../../DB/prisma';
 import { BadRequestException } from '../exceptions/bad-requests';
 import { ErrorCode } from '../exceptions/root';
 import { updateOrderStatusSchema } from '../models/order';
+import { OrderServingTypeOptions } from '@prisma/client';
 
 export let generatedOrderNumber = 1;
 
@@ -79,18 +80,43 @@ cron.schedule('0 0 * * *', async () => {
 // };
 
 export const createOrders = async (req: Request, res: Response) => {
+
+  const {name , email, OrderType,paymentMethod} = req.body
   // Step 1: Fetch the user's cart
   const cart = await prisma.cartItem.findMany({
     where: {
       userId: Number(req.user?.id),
+      mealId: null,
     },
     include: {
       product: true,
     },
   });
 
+  const cart_meal = await prisma.cartItem.findMany({
+    where: {
+      userId: Number(req.user?.id),
+      productId: null,
+    },
+    include: {
+      meal: {
+        include: {
+          mealItems: {
+            include: {
+              product: {
+                include: {
+                  category: true,
+                },
+              },
+            },
+          },
+        }
+      }
+    },
+  });
+
   // Step 2: Check if the cart is empty
-  if (cart.length === 0) {
+  if (cart.length+cart_meal.length === 0) {
     throw new BadRequestException('Cart is empty', ErrorCode.UNPROCESSABLE_ENTITY);
   }
 
@@ -99,17 +125,35 @@ export const createOrders = async (req: Request, res: Response) => {
     (total, item) => total + Number(item.product.price) * Number(item.quantity),
     0,
   );
+
+  const netAmount_meal = cart_meal.reduce(
+    (total, item) => total + Number(item.meal.price) * Number(item.quantity),
+    0,
+  );
+
+  const netAmount_total = netAmount + netAmount_meal;
+
   const totalQuantity = cart.reduce((total, item) => total + Number(item.quantity), 0);
+
+  const totalQuantity_meal = cart_meal.reduce((total, item) => total + Number(item.quantity), 0);
+
+  const totalQuantity_total = totalQuantity + totalQuantity_meal;
 
   // Step 4: Generate the order
   const orderNumber = generatedOrderNumber++;
+
+  const orderservingmethodused = OrderType === 'EATIN' ?OrderServingTypeOptions.EATIN:OrderServingTypeOptions.DELIVERY;
 
   const order = await prisma.order.create({
     data: {
       userId: Number(req.user?.id),
       orderNumber: orderNumber,
-      netAmount: netAmount,
-      totalQuantity: totalQuantity,
+      netAmount: netAmount_total,
+      totalQuantity: totalQuantity_total,
+      customerName: name,
+      customerEmail: email,
+      OrderServingType: orderservingmethodused,
+      paymentMethod: paymentMethod,
     },
   });
 
@@ -125,6 +169,19 @@ export const createOrders = async (req: Request, res: Response) => {
         },
       });
     }),
+  );
+
+  const orderItems_meal = await Promise.all(
+    cart_meal.map(async (item) => {
+      return prisma.orderItem.create({
+        data: {
+          orderId: order.id,
+          mealId: item.meal.id,
+          quantity: item.quantity,
+          price: Number(item.meal.price),
+        },
+      });
+    })
   );
 
   // Step 6: Create an order event
@@ -151,6 +208,20 @@ export const createOrders = async (req: Request, res: Response) => {
           product: {
             include: {
               category: true,
+            },
+          },
+          meal: {
+            include: {
+              category: true,
+              mealItems: {
+                include: {
+                  product: {
+                    include: {
+                      category: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -186,6 +257,20 @@ export const getOrderById = async (req: Request, res: Response) => {
       OrderItem: {
         include: {
           product: true,
+          meal: {
+            include: {
+              category: true,
+              mealItems: {
+                include: {
+                  product: {
+                    include: {
+                      category: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
       OrderEvent: true,
@@ -245,6 +330,20 @@ export const getAllOrders = async (req: Request, res: Response) => {
       OrderItem: {
         include: {
           product: true,
+          meal: {
+            include: {
+              category: true,
+              mealItems: {
+                include: {
+                  product: {
+                    include: {
+                      category: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
       OrderEvent: true,
@@ -318,6 +417,55 @@ export const updateIsPaid = async (req: Request, res: Response) => {
     // if (isPaid !== true ) {
     throw new BadRequestException('isPaid must be true or false', ErrorCode.UNPROCESSABLE_ENTITY);
   }
+
+  
+  const order1 = await prisma.order.findUnique({
+    where: {
+      id: Number(id),
+    },
+    include: {
+      OrderItem: {
+        include: {
+          product: {
+            include: {
+              category: true,
+            },
+          },
+        },
+      },
+      OrderEvent: true,
+    },
+  });
+
+  const updatedOrder = await prisma.order.update({
+    where: {
+      id: Number(id),
+    },
+    data: {
+      orderStatus: 'PROCESSING',
+    },
+  });
+
+  const orderEvent = await prisma.orderEvent.findFirst({
+    where: {
+      orderId: Number(id),
+    },
+  });
+
+  const updatedOrderEvent = await prisma.orderEvent.update({
+    where: {
+      id: orderEvent?.id,
+    },
+    data: {
+      status: 'PROCESSING',
+    },
+  });
+
+  if (!order1) {
+    throw new BadRequestException('Order not found', ErrorCode.UNPROCESSABLE_ENTITY);
+  }
+
+
   const order = await prisma.order.update({
     where: {
       id: Number(id),
@@ -334,6 +482,8 @@ export const updateIsPaid = async (req: Request, res: Response) => {
     throw new BadRequestException('SocketIO instance not found', ErrorCode.UNPROCESSABLE_ENTITY);
   } else {
     io.emit('OrderisPaidUpdated', order.id);
+    io.emit('OrderAddToInKitchen', order1);
+
     res.status(200).json({
       message: 'Order updated successfully',
       data: order,

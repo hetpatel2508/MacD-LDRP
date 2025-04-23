@@ -17,16 +17,19 @@ import McSavers from './Components/McSavers';
 import NONG from './Components/NONG';
 import ProductDetails from './Components/ProductDetails';
 import Cart from './Components/Cart';
+import SendEmail from './Components/SendEmail';
+import TakeInputNameEmail from './Components/TakeInputNameEmail';
 
 export default function App() {
   const [showIntro, setShowIntro] = React.useState(true);
   const [showOptions, setShowOptions] = React.useState(true);
 
   const [OrderType, setOrderType] = React.useState('');
+
   return (
     <BrowserRouter>
-      {/* {showIntro && <Intro setShowIntro={setShowIntro} />}
-      {showOptions && <Options setShowOptions={setShowOptions} setOrderType={setOrderType} />} */}
+      {showIntro && <Intro setShowIntro={setShowIntro} />}
+      {showOptions && <Options setShowOptions={setShowOptions} setOrderType={setOrderType} />}
       <div className="w-full h-full">
         <Navbar />
         <div className="w-full max-h-[calc(100%-80px)] ">
@@ -37,7 +40,7 @@ export default function App() {
             <div className="h-full w-[calc(100%-270px)] ml-[270px] mt-[80px] ">
               <Routes>
                 <Route path="/" element={<MainBox />} />
-                <Route path="/cart" element={<Cart />} />
+                <Route path="/cart" element={<Cart OrderType={OrderType} />} />
                 <Route path="/:id" element={<SubBox />} />
                 <Route path="/value-meal" element={<ValueMeal />} />
                 <Route path="/burger-wraps" element={<BurgerWraps />} />
@@ -48,6 +51,8 @@ export default function App() {
                 <Route path="/happy-meal" element={<HappyMeal />} />
                 <Route path="/mc-savers" element={<McSavers />} />
                 <Route path="/nong" element={<NONG />} />
+                <Route path="/order-details/:id" element={<SendEmail />} />
+                {/* <Route path="/nong" element={<SendEmail />} /> */}
                 <Route path="/product/:id" element={<ProductDetails />} />
               </Routes>
             </div>

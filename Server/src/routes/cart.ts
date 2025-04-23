@@ -4,6 +4,7 @@ import authMiddleware from '../middlewares/auth';
 import { addAddress, deleteAddress, listAddress, updateUser } from '../controllers/users';
 import {
   addItemToCart,
+  addMealToCart,
   changeQuantity,
   clearCart,
   deleteItemToCart,
@@ -13,6 +14,7 @@ import {
 const cartRouter: Router = Router();
 
 cartRouter.post('/', [authMiddleware], errorHandler(addItemToCart));
+cartRouter.post('/meal', [authMiddleware], errorHandler(addMealToCart));
 cartRouter.get('/', [authMiddleware], errorHandler(getCart));
 cartRouter.delete('/:id', [authMiddleware], errorHandler(deleteItemToCart));
 cartRouter.delete('/', [authMiddleware], errorHandler(clearCart));

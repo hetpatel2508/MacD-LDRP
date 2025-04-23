@@ -82,8 +82,8 @@ model CartItem {
   id        Int      @id @default(autoincrement())
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
-  productId Int
-  product   Product  @relation(fields: [productId], references: [id])
+  productId Int?
+  product   Product? @relation(fields: [productId], references: [id])
   mealId    Int?
   meal      Meal?    @relation(fields: [mealId], references: [id])
   quantity  Int
@@ -91,29 +91,45 @@ model CartItem {
   updatedAt DateTime @updatedAt
 }
 
+enum OrderServingTypeOptions {
+  EATIN
+  DELIVERY
+}
+
+enum paymentTransactionMethod {
+  CASH
+  ONLINE
+}
+
 model Order {
-  id            Int          @id @default(autoincrement())
-  orderNumber   Int
-  userId        Int
-  user          User         @relation(fields: [userId], references: [id])
-  isPaid        Boolean      @default(false)
-  netAmount     Int
-  totalQuantity Int
-  orderStatus   Order_status @default(PENDING)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  OrderItem     OrderItem[]
-  OrderEvent    OrderEvent[]
-  Payment       Payment[]
-  Feedback      Feedback[]
+  id               Int                      @id @default(autoincrement())
+  orderNumber      Int
+  customerName     String                   @default("Anonymous")
+  customerEmail    String                   @default("anonymous@example.com")
+  OrderServingType OrderServingTypeOptions  @default(EATIN)
+  paymentMethod    paymentTransactionMethod @default(CASH)
+  userId           Int
+  user             User                     @relation(fields: [userId], references: [id])
+  isPaid           Boolean                  @default(false)
+  netAmount        Int
+  totalQuantity    Int
+  orderStatus      Order_status             @default(PENDING)
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  OrderItem        OrderItem[]
+  OrderEvent       OrderEvent[]
+  Payment          Payment[]
+  Feedback         Feedback[]
 }
 
 model OrderItem {
   id        Int      @id @default(autoincrement())
   orderId   Int
   order     Order    @relation(fields: [orderId], references: [id])
-  productId Int
-  product   Product  @relation(fields: [productId], references: [id])
+  productId Int?
+  product   Product? @relation(fields: [productId], references: [id])
+  mealId    Int?
+  meal      Meal?    @relation(fields: [mealId], references: [id])
   price     Int
   quantity  Int
   createdAt DateTime @default(now())
@@ -155,20 +171,21 @@ model Feedback {
 }
 
 model Meal {
-  id         Int        @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   userId     Int
-  user       User       @relation(fields: [userId], references: [id])
+  user       User        @relation(fields: [userId], references: [id])
   name       String
   image      String
   price      Decimal
   quantity   Int
   categoryId Int
-  category   Category   @relation(fields: [categoryId], references: [id])
-  foodType   Food_type  @default(VEG)
+  category   Category    @relation(fields: [categoryId], references: [id])
+  foodType   Food_type   @default(VEG)
   mealItems  MealItem[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
   CartItem   CartItem[]
+  OrderItem  OrderItem[]
 }
 
 model MealItem {

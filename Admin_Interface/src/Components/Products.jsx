@@ -32,12 +32,14 @@ export default function Products() {
                 const data = await response.json();
                 if (!response.ok) {
                     setServerError(data.message + ' (' + data.errorCode + ')');
+                    toast.error(data.message + ' (' + data.errorCode + ')');
                 } else {
                     setProducts(data.data);
                 }
             } catch (error) {
                 console.error('Error fetching products:', error);
                 setServerError('Unable to fetch products. Please try again.');
+                toast.error('Unable to fetch products. Please try again.');
             }
         };
 
@@ -53,6 +55,7 @@ export default function Products() {
                 const data = await response.json();
                 if (!response.ok) {
                     setServerError(data.message + ' (' + data.errorCode + ')');
+                    toast.error(data.message + ' (' + data.errorCode + ')');
                 } else {
                     setCategories(data.data);
                     setNewProduct((prevProduct) => ({
@@ -62,6 +65,7 @@ export default function Products() {
                 }
             } catch (error) {
                 console.error('Error fetching categories:', error);
+                toast.error('Unable to fetch categories. Please try again.');
                 setServerError('Unable to fetch categories. Please try again.');
             }
         };
@@ -93,6 +97,7 @@ export default function Products() {
             const data = await response.json();
             if (!response.ok) {
                 setServerError(data.message + ' (' + data.errorCode + ')');
+                toast.error('Failed to update product!');
             } else {
                 setProducts((prevProducts) =>
                     prevProducts.map((product) =>
@@ -100,37 +105,39 @@ export default function Products() {
                     )
                 );
                 setEditProductId(null);
+                toast.success('Product updated successfully!');
             }
         } catch (error) {
             console.error('Error updating product:', error);
             setServerError('Unable to update product. Please try again.');
+            toast.error('Unable to update product. Please try again.');
         }
     };
 
+
     const handleDeleteClick = async (id) => {
+        // Wrapping the promise correctly
         toast.promise(
-            new Promise(async (resolve, reject) => {
-                try {
-                    const response = await fetch(`http://localhost:6868/product/${id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            Authorization: `${Cookies.get('token')}`,
-                        },
-                    });
+            fetch(`http://localhost:6868/product/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `${Cookies.get('token')}`,
+                },
+            })
+                .then(async (response) => {
                     const data = await response.json();
                     if (!response.ok) {
-                        reject(data.message + ' (' + data.errorCode + ')');
-                    } else {
-                        setProducts((prevProducts) =>
-                            prevProducts.filter((product) => product.id !== id)
-                        );
-                        resolve('Product deleted successfully!');
+                        throw new Error(data.message + ' (' + data.errorCode + ')');
                     }
-                } catch (error) {
+                    setProducts((prevProducts) =>
+                        prevProducts.filter((product) => product.id !== id)
+                    );
+                    return 'Product deleted successfully!'; // Resolve success message
+                })
+                .catch((error) => {
                     console.error('Error deleting product:', error);
-                    reject('Unable to delete product. Please try again.');
-                }
-            }),
+                    throw new Error('Unable to delete product. Please try again.'); // Reject on error
+                }),
             {
                 pending: 'Deleting product...',
                 success: 'Product deleted successfully!',
@@ -138,6 +145,7 @@ export default function Products() {
             }
         );
     };
+
 
     const handleChangeInInput = (e) => {
         const { name, value } = e.target;
@@ -166,6 +174,7 @@ export default function Products() {
             const data = await response.json();
             if (!response.ok) {
                 setServerError(data.message + ' (' + data.errorCode + ')');
+                toast.error('Failed to add product!');
             } else {
                 setProducts([...Products, data.data]);
                 setNewProduct({
@@ -176,13 +185,14 @@ export default function Products() {
                     foodType: 'VEG',
                 });
                 toast.success('Product added successfully!');
-
             }
         } catch (error) {
             console.error('Error adding product:', error);
             setServerError('Unable to add product. Please try again.');
+            toast.error('Unable to add product. Please try again.');
         }
-    }
+    };
+
 
 
     return (
